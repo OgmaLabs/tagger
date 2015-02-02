@@ -11,9 +11,9 @@ tagger = {
   tagsContainerId: 'tag-content',
   tagList: null,
   tagListContainerId: null,
+  tagCounter: null,
   validator: false,
   addTag: function(tag){
-    console.log(tag)
     var self = $(this)[0];
     var html = "<span class='label "+self.labelClass+"'>"+tag+" <a href='#'>"+self.tagCloseIcon+"</a></span>";
 
@@ -29,15 +29,20 @@ tagger = {
 
     return;
   },
-  tagListChecker: function(tag){
-    var self = $(this)[0];
-    if($.inArray(tag, self.tagList) >= 0){
-      return true;
-    }else{
-      alert("Error!");
-      console.log("Not in list")
-      return false;
-    }
+  eventFunc: function(){
+    // Recalling foundation to bind events
+    $(document).foundation('reflow');
+
+    // Click event for dropdown
+    $('#'+self.tagListContainerId +' > li > a').on('click', function(){
+      $('#'+self.inputId).val($(this).text());
+      self.addTag($('#'+self.inputId).val())
+    })
+
+    // Remove event for labels
+    $(document).on('click', '#tag-content > .label > a', function(){
+      $(this).parent().remove();
+    })
   },
   noDuplicate: function(tag){
     var tlis = $('#tag-content > .label');
@@ -52,6 +57,16 @@ tagger = {
         }
       })
       return true;
+    }
+  },
+  tagListChecker: function(tag){
+    var self = $(this)[0];
+    if($.inArray(tag, self.tagList) >= 0){
+      return true;
+    }else{
+      alert("Error!");
+      console.log("Not in list")
+      return false;
     }
   },
   tagListener: function(){
@@ -82,21 +97,14 @@ tagger = {
       $('#'+self.tagListContainerId).append(html);
       $('#'+self.inputId).attr('data-dropdown', self.tagListContainerId)
         .attr('aria-controls', self.tagListContainerId)
-        .attr('aria-expanded', 'false')
+        .attr('aria-expanded', 'false');
 
-      // Recalling foundation to bind events
-      $(document).foundation('reflow');
-
-      // Click event for dropdown
-      $('#'+self.tagListContainerId +' > li > a').on('click', function(){
-        $('#'+self.inputId).val($(this).text());
-        self.addTag($('#'+self.inputId).val())
-      })
-
-      // Remove event for labels
-      $(document).on('click', '#tag-content > .label > a', function(){
-        $(this).parent().remove();
-      })
+      self.eventFunc();
     }
+
+    self.eventFunc();
+    /*
+      
+    */
   }
 }
