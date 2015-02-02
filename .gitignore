@@ -1,7 +1,11 @@
-/css/*
+/css/foundation.css
+/css/foundation.min.css
+/css/normalize.css
 /js/foundation
 /js/foundation/*
 /js/vendor
 /js/vendor/*
 /js/foundation.min.js
+/js/example.js
+/js/index.js
 index.html
