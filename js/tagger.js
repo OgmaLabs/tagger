@@ -50,12 +50,13 @@ tagger = {
     // Recalling foundation to bind events
     $(document).foundation('reflow');
 
-    // Click event for dropdown
-    $('#'+self.tagListContainerId +' > li > a').on('click', function(){
-      $('#'+self.inputId).val($(this).text());
-      self.addTag($('#'+self.inputId).val());
-      $('#'+self.inputId).val('');
-    })
+    if(self.tagList){
+      $('#'+self.tagListContainerId +' > li > a').on('click', function(){
+        $('#'+self.inputId).val($(this).text());
+        self.addTag($('#'+self.inputId).val());
+        $('#'+self.inputId).val('');
+      })
+    }
 
     $('#'+self.inputId).on('keyup',function(e){
       e.preventDefault();
@@ -116,8 +117,7 @@ tagger = {
     if(!self.inputId){ console.log("No input ID provided"); return;}
     if(self.onlyTagList && self.tagList.length == 0 && self.tagListContainerId){
       console.log("Tag list problem detected"); 
-      return;
-    }else{
+    }else if(self.tagList){
       // Populating tag list
       $.each(self.tagList, function(index, item){
         html+= "<li><a href='#'>"+item+"</a></li>"
@@ -128,11 +128,7 @@ tagger = {
       $('#'+self.inputId).attr('data-dropdown', self.tagListContainerId)
         .attr('aria-controls', self.tagListContainerId)
         .attr('aria-expanded', 'false');
-
-      self.eventFunc();
     }
-    /*
-      
-    */
+    self.eventFunc();
   }
 }
