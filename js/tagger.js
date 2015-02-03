@@ -11,12 +11,12 @@ tagger = {
   tagsContainerId: 'tag-content',
   tagList: null,
   tagListContainerId: null,
+  tagListStart: null,
   tagCounter: null,
   validator: false,
   addTag: function(tag){
     var self = $(this)[0];
     var html = "<span class='label "+self.labelClass+"'>"+tag+" <a href='#'>"+self.tagCloseIcon+"</a></span>";
-    console.log(tag)
 
     if(self.allowDuplicates && self.onlyTagList && self.tagListChecker(tag)){
       $('#tag-content').append(html);
@@ -93,6 +93,11 @@ tagger = {
       return ($.inArray(tag, tlis) == -1);
     }
   },
+  populate:function(){
+    var self = $(this)[0];
+
+    $.each(self.tagListStart,function(index,item){ self.addTag(item)});
+  },
   removeTag: function(elem){
     // Remove the last tag to be added
     if(!elem){
@@ -140,6 +145,8 @@ tagger = {
         .attr('aria-controls', self.tagListContainerId)
         .attr('aria-expanded', 'false');
     }
+
+    if(self.tagListStart){ self.populate();}
     self.eventFunc();
   }
 }
