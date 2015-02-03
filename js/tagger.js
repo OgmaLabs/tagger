@@ -58,6 +58,14 @@ tagger = {
       })
     }
 
+    $('#tag-drop > li').on('click', function(e){ 
+      e.preventDefault();
+    })
+
+    $('#tag-content > span > a').on('click',function(e){
+      e.preventDefault();
+    })
+
     $('#'+self.inputId).on('keyup',function(e){
       e.preventDefault();
       if(e.which == 188){
@@ -93,7 +101,10 @@ tagger = {
     // TO DO check if MINTAG
     var self = $(this)[0];
     var lname = self.justText(elem);
+    var arr = $('#tagger-result').val().split(',');
     elem.remove();
+
+    $('#tagger-resulta').val(arr.splice( $.inArray('Outros',arr) , 1).join(','));
   },
   tagListChecker: function(tag){
     var self = $(this)[0];
@@ -120,7 +131,7 @@ tagger = {
     }else if(self.tagList){
       // Populating tag list
       $.each(self.tagList, function(index, item){
-        html+= "<li><a href='#'>"+item+"</a></li>"
+        html+= "<li><a href='javascript:void(0)'>"+item+"</a></li>"
       })
 
       // Setting necessary flags
