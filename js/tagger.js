@@ -104,7 +104,7 @@ tagger = {
     var arr = $('#tagger-result').val().split(',');
     elem.remove();
 
-    $('#tagger-resulta').val(arr.splice( $.inArray('Outros',arr) , 1).join(','));
+    $('#tagger-result').val(arr.splice( $.inArray('Outros',arr) , 1).join(','));
   },
   tagListChecker: function(tag){
     var self = $(this)[0];
