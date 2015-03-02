@@ -13,7 +13,6 @@ tagger = {
   tagListContainerId: null,
   tagListFormat: null,
   tagListStart: null,
-  validator: false,
   addTag: function(tag, value) {
     var flag, html, self;
     self = $(this)[0];

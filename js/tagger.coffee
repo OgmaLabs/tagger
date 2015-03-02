@@ -11,7 +11,6 @@ tagger =
   tagListContainerId: null
   tagListFormat: null
   tagListStart: null
-  validator: false
   # ALL THE FUNCS
   addTag: (tag, value) ->
     self = $(this)[0]
