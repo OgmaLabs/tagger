@@ -5,7 +5,7 @@ tagger = {
   hiddenInputId: null,
   inputId: null,
   indexableTagList: [],
-  labelClass: '',
+  labelClass: 'warning',
   onlyTagList: false,
   tagCloseIcon: 'X',
   tagContainerId: null,
@@ -17,7 +17,7 @@ tagger = {
     var flag, html, self;
     self = $(this)[0];
     flag = true;
-    html = "<span class='label " + self.labelClass + "'>" + tag + " <a href='javascript:void(0)'>" + self.tagCloseIcon + "</a></span>";
+    html = "<span class='label " + self.labelClass + "'>" + tag + " <a id='tagger-remove-label' data-value=" + (value || tag) + " href='#'>" + self.tagCloseIcon + "</a></span>";
     if (!self.allowDuplicates && !self.onlyTagList) {
       flag = self.noDuplicate(tag);
     }
@@ -28,18 +28,18 @@ tagger = {
       flag = self.isInTagList(tag, value);
     }
     if (flag) {
-      $('#' + self.tagContainerId).append(html);
+      $("#" + self.tagContainerId).append(html);
     }
-    if ($('#' + self.hiddenInputId).val()) {
-      $('#' + self.hiddenInputId).val($('#' + self.hiddenInputId).val() + "," + value);
+    if ($("#" + self.hiddenInputId).val()) {
+      $("#" + self.hiddenInputId).val($("#" + self.hiddenInputId).val() + ("," + value));
     } else {
-      $('#' + self.hiddenInputId).val(value || tag);
+      $("#" + self.hiddenInputId).val(value || tag);
     }
   },
   noDuplicate: function(tag) {
     var self;
     self = $(this)[0];
-    return $.inArray(tag, self.labelToArray($('#' + self.tagContainerId + ' > span'))) === -1;
+    return $.inArray(tag, self.labelToArray($("#" + self.tagContainerId + " > span"))) === -1;
   },
   isInTagList: function(tag, value) {
     var self;
@@ -70,18 +70,34 @@ tagger = {
       idPos = $.inArray('id', self.tagListFormat);
       namePos = $.inArray('name', self.tagListFormat);
       $.each(self.tagList, function(index, item) {
-        html += "<li data-value='" + item[idPos] + "'><a href='javascript:void(0)'>" + item[namePos] + "</a></li>";
+        html += "<li data-value=" + item[idPos] + "><a href='javascript:void(0)'>" + item[namePos] + "</a></li>";
         self.indexableTagList.push(item[namePos]);
       });
     } else {
       $.each(self.tagList, function(index, item) {
-        html += "<li data-value='" + item + "'><a href='javascript:void(0)'>" + item + "</a></li>";
+        html += "<li data-value=" + item + "><a href='javascript:void(0)'>" + item + "</a></li>";
         self.indexableTagList.push(item);
       });
     }
-    html = "<ul id='" + self.tagListContainerId + "' class='f-dropdown' data-dropdown-content aria-hidden='true' tabindex='-1'>" + html + "</ul>";
-    $('#' + self.hiddenInputId).parent().append(html);
-    $('#' + self.inputId).attr('data-dropdown', self.tagListContainerId).attr('aria-controls', self.tagListContainerId).attr('aria-expanded', 'false');
+    html = "<ul id=" + self.tagListContainerId + " class='f-dropdown' data-dropdown-content aria-hidden='true' tabindex='-1'>" + html + "</ul>";
+    $("#" + self.hiddenInputId).parent().append(html);
+    $("#" + self.inputId).attr('data-dropdown', self.tagListContainerId).attr('aria-controls', self.tagListContainerId).attr('aria-expanded', 'false');
+  },
+  removeLabelFromHiddenInput: function(value) {
+    var arr, i, self;
+    self = $(this)[0];
+    arr = $("#" + self.hiddenInputId).val().split(",");
+    i = arr.indexOf("" + value);
+    arr.splice(i, 1);
+    $("#" + self.hiddenInputId).val(arr.join());
+  },
+  setTagListeners: function() {
+    var self;
+    self = $(this)[0];
+    $(document).on('click', "[id='tagger-remove-label']", function() {
+      self.removeLabelFromHiddenInput($(this).data('value'));
+      $(this).parent().remove();
+    });
   },
   init: function() {
     var idPos, namePos, self;
@@ -109,5 +125,6 @@ tagger = {
         });
       }
     }
+    self.setTagListeners();
   }
 };
