@@ -5,7 +5,7 @@ tagger = {
   hiddenInputId: null,
   inputId: null,
   indexableTagList: [],
-  labelClass: 'warning',
+  labelClass: null,
   onlyTagList: false,
   tagCloseIcon: 'X',
   tagContainerId: null,
