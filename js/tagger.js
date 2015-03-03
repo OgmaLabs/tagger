@@ -57,7 +57,7 @@ tagger = {
   tagListClickEvent: function() {
     var self;
     self = $(this)[0];
-    return $('#' + self.tagListContainerId + '> li').click(function(evt) {
+    return $("#" + self.tagListContainerId + " > li").click(function(evt) {
       evt.preventDefault();
       self.addTag($(this).find('a').text(), $(this).data('value'));
     });

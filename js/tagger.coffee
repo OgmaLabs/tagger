@@ -46,7 +46,7 @@
       # This function is called if there is a tag list
       self = $(this)[0]
 
-      $('#' + self.tagListContainerId + '> li').click (evt) ->
+      $("##{self.tagListContainerId} > li").click (evt) ->
         evt.preventDefault()
         self.addTag($(this).find('a').text(), $(this).data('value'))
         return
