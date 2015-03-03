@@ -39,7 +39,7 @@
     labelToArray: (selector) ->
       arr = []
       $.each selector, (i, val) ->
-        arr.push $(this).text().split(' ')[0]
+        arr.push $(this).text().slice(0,-2)
         return
       return arr
     tagListClickEvent: ->

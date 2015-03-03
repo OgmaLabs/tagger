@@ -50,7 +50,7 @@ tagger = {
     var arr;
     arr = [];
     $.each(selector, function(i, val) {
-      arr.push($(this).text().split(' ')[0]);
+      arr.push($(this).text().slice(0, -2));
     });
     return arr;
   },
