@@ -16,6 +16,7 @@ Flags marked with * are essencial
 - tagCloseIcon: 'X'
 - tagContainerId: null *
 - tagListContainerId: null *
+- tagListContainerHeight: 300 *
 - tagListFormat: null
 - tagListStart: null
 
@@ -66,6 +67,10 @@ This is where the labels will be printed out
 **tagListContainerId**
 
 If you want to show a tag list, then they will show up in a dropdown every time you give focus to the input
+
+**tagListContainerHeight**
+
+This is the default height of the foundation dropdown, adjust it at will, it's defined in pixels
 
 **tagListFormat**
 
