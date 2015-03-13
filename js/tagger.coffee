@@ -9,6 +9,7 @@
     tagContainerId: null
     tagList: null
     tagListContainerId: null
+    tagListContainerHeight: 300
     tagListFormat: null
     tagListStart: null
     # ALL THE FUNCS
@@ -46,10 +47,11 @@
       # This function is called if there is a tag list
       self = $(this)[0]
 
-      $("##{self.tagListContainerId} > li").click (evt) ->
+      $("##{self.tagListContainerId} > ul > li").click (evt) ->
         evt.preventDefault()
-        self.addTag($(this).find('a').text(), $(this).data('value'))
-        return
+        self.toggleVisiblityTagList($(this).data('value'))
+        self.addTag($(this).find('a').find('h6').text(), $(this).data('value'))
+      return
     populateDropdown: ->
       # This function is called if there is a tag list
       self = $(this)[0]
@@ -58,16 +60,16 @@
         idPos = $.inArray 'id', self.tagListFormat
         namePos = $.inArray 'name', self.tagListFormat
         $.each self.tagList, (index, item) ->
-          html += "<li data-value=#{item[idPos]}><a href='javascript:void(0)'>#{item[namePos]}</a></li>"
+          html += "<li data-value=#{item[idPos]}><a href='javascript:void(0)'><h6>#{item[namePos]}</h6></a></li>"
           self.indexableTagList.push(item[namePos])
           return
       else
         $.each self.tagList, (index, item) ->
-          html += "<li data-value=#{item}><a href='javascript:void(0)'>#{item}</a></li>"
+          html += "<li data-value=#{item}><a href='javascript:void(0)'><h6>#{item}</h6></a></li>"
           self.indexableTagList.push(item)
           return
 
-      html = "<ul id=#{self.tagListContainerId} class='f-dropdown' data-dropdown-content aria-hidden='true' tabindex='-1'>#{html}</ul>"
+      html = "<div id=#{self.tagListContainerId} class='f-dropdown medium content' data-dropdown-content aria-hidden='true' tabindex='-1'><ul class='inline-list' style='height: #{self.tagListContainerHeight}px; overflow:auto;'>#{html}</ul></div>"
 
       # Adding HTML to page
       $("##{self.hiddenInputId}").parent().append(html)
@@ -88,19 +90,22 @@
       self = $(this)[0]
       # Click on the remove icon
       $(document).on 'click', "[id='tagger-remove-label']", ->
+        self.toggleVisiblityTagList($(this).data('value'))
         # 1 Remove from hidden input
         self.removeLabelFromHiddenInput($(this).data('value'))
         # 2 Remove label
         $(this).parent().remove()
-        return
+
+      return
+    toggleVisiblityTagList: (value)->
+      self = $(this)[0]
+      $("##{self.tagListContainerId} > ul > li[data-value=#{value}]").toggle() unless self.allowDuplicates
       return
     init: ->
       # This function checks mandatory flags and calls the necessary functions
       self = $(this)[0]
       # Check for mandatory IDs
-
-      alert 'Some flags are missing' unless self.hiddenInputId and self.inputId and self.tagContainerId and self.tagListContainerId
-
+      alert 'Some flags are missing' unless self.hiddenInputId and self.inputId and self.tagContainerId and self.tagListContainerId and self.tagListContainerHeight
       # Check if there is a tag list
       if self.tagList
         self.populateDropdown()

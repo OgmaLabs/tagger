@@ -11,6 +11,7 @@ tagger = {
   tagContainerId: null,
   tagList: null,
   tagListContainerId: null,
+  tagListContainerHeight: 300,
   tagListFormat: null,
   tagListStart: null,
   addTag: function(tag, value) {
@@ -57,9 +58,10 @@ tagger = {
   tagListClickEvent: function() {
     var self;
     self = $(this)[0];
-    return $("#" + self.tagListContainerId + " > li").click(function(evt) {
+    $("#" + self.tagListContainerId + " > ul > li").click(function(evt) {
       evt.preventDefault();
-      self.addTag($(this).find('a').text(), $(this).data('value'));
+      self.toggleVisiblityTagList($(this).data('value'));
+      return self.addTag($(this).find('a').find('h6').text(), $(this).data('value'));
     });
   },
   populateDropdown: function() {
@@ -70,16 +72,16 @@ tagger = {
       idPos = $.inArray('id', self.tagListFormat);
       namePos = $.inArray('name', self.tagListFormat);
       $.each(self.tagList, function(index, item) {
-        html += "<li data-value=" + item[idPos] + "><a href='javascript:void(0)'>" + item[namePos] + "</a></li>";
+        html += "<li data-value=" + item[idPos] + "><a href='javascript:void(0)'><h6>" + item[namePos] + "</h6></a></li>";
         self.indexableTagList.push(item[namePos]);
       });
     } else {
       $.each(self.tagList, function(index, item) {
-        html += "<li data-value=" + item + "><a href='javascript:void(0)'>" + item + "</a></li>";
+        html += "<li data-value=" + item + "><a href='javascript:void(0)'><h6>" + item + "</h6></a></li>";
         self.indexableTagList.push(item);
       });
     }
-    html = "<ul id=" + self.tagListContainerId + " class='f-dropdown' data-dropdown-content aria-hidden='true' tabindex='-1'>" + html + "</ul>";
+    html = "<div id=" + self.tagListContainerId + " class='f-dropdown medium content' data-dropdown-content aria-hidden='true' tabindex='-1'><ul class='inline-list' style='height: " + self.tagListContainerHeight + "px; overflow:auto;'>" + html + "</ul></div>";
     $("#" + self.hiddenInputId).parent().append(html);
     $("#" + self.inputId).attr('data-dropdown', self.tagListContainerId).attr('aria-controls', self.tagListContainerId).attr('aria-expanded', 'false');
   },
@@ -95,14 +97,22 @@ tagger = {
     var self;
     self = $(this)[0];
     $(document).on('click', "[id='tagger-remove-label']", function() {
+      self.toggleVisiblityTagList($(this).data('value'));
       self.removeLabelFromHiddenInput($(this).data('value'));
-      $(this).parent().remove();
+      return $(this).parent().remove();
     });
+  },
+  toggleVisiblityTagList: function(value) {
+    var self;
+    self = $(this)[0];
+    if (!self.allowDuplicates) {
+      $("#" + self.tagListContainerId + " > ul > li[data-value=" + value + "]").toggle();
+    }
   },
   init: function() {
     var idPos, namePos, self;
     self = $(this)[0];
-    if (!(self.hiddenInputId && self.inputId && self.tagContainerId && self.tagListContainerId)) {
+    if (!(self.hiddenInputId && self.inputId && self.tagContainerId && self.tagListContainerId && self.tagListContainerHeight)) {
       alert('Some flags are missing');
     }
     if (self.tagList) {
