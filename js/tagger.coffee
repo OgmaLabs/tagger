@@ -86,8 +86,12 @@ tagger =
     return
   setTagListeners: ->
     self = $(this)[0]
-    #Listener for the input filter
-    $("##{self.filterId}").keyup ->
+    #Listener for the input filter, and creator of tags
+    $("##{self.filterId}").keyup (evt) ->
+      # Adding new tags
+      if evt.keyCode == 188 and !self.onlyTagList
+        self.addTag($(this).val().split(",")[0], $(this).val().split(",")[0])
+        $(this).val('')
       self.filterInput($(this).val())
       if $(this).val().length == 0
         $("##{self.tagListContainerId} > ul > li").show()

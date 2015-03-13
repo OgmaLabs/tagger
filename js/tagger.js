@@ -98,7 +98,11 @@ tagger = {
   setTagListeners: function() {
     var self;
     self = $(this)[0];
-    $("#" + self.filterId).keyup(function() {
+    $("#" + self.filterId).keyup(function(evt) {
+      if (evt.keyCode === 188 && !self.onlyTagList) {
+        self.addTag($(this).val().split(",")[0], $(this).val().split(",")[0]);
+        $(this).val('');
+      }
       self.filterInput($(this).val());
       if ($(this).val().length === 0) {
         return $("#" + self.tagListContainerId + " > ul > li").show();

@@ -35,7 +35,7 @@ Example: tagger.buttonId = '_someOtherID_'
 
 **filterId**
 
-The filterId will have two functionalities, first it can filter elements from a given tagList but it will also be able to add non-listed elements using the tab key &rarr; or the colon key &#44;
+The filterId will have two functionalities, first it can filter elements from a given tagList but it will also be able to add non-listed elements using the colon key &#44;
 
 **hiddenInputId**
 
