@@ -1,20 +1,6 @@
-  tagger =
-    allowDuplicates: true
-    hiddenInputId: null
-    inputId: null
-    indexableTagList: []
-    labelClass: null
-    onlyTagList: false
-    tagCloseIcon: 'X'
-    tagContainerId: null
-    tagList: null
-    tagListContainerId: null
-    tagListContainerHeight: 300
-    tagListFormat: null
-    tagListStart: null
-    # ALL THE FUNCS
+  taggerJS =
     addTag: (tag, value) ->
-      self = $(this)[0]
+      self = $(this)
       flag = true
       html = "<span class='label #{self.labelClass}'>#{tag} <a id='tagger-remove-label' data-value=#{value || tag} href='#'>#{self.tagCloseIcon}</a></span>"
 
@@ -30,31 +16,33 @@
         $("##{self.hiddenInputId}").val($("##{self.hiddenInputId}").val()+",#{value}")
       else
         $("##{self.hiddenInputId}").val(value || tag)
-      return
+      
     noDuplicate: (tag) ->
-      self = $(this)[0]
-      return $.inArray(tag, self.labelToArray($("##{self.tagContainerId} > span"))) == -1
+      self = $(this)
+      $.inArray(tag, self.labelToArray($("##{self.tagContainerId} > span"))) == -1
     isInTagList: (tag, value) ->
-      self = $(this)[0]
-      return $.inArray(tag, self.indexableTagList) >= 0
+      self = $(this)
+      $.inArray(tag, self.indexableTagList) >= 0
+
     labelToArray: (selector) ->
       arr = []
       $.each selector, (i, val) ->
         arr.push $(this).text().slice(0,-2)
         return
-      return arr
+      arr
+
     tagListClickEvent: ->
       # This function is called if there is a tag list
-      self = $(this)[0]
+      self = $(this)
 
       $("##{self.tagListContainerId} > ul > li").click (evt) ->
         evt.preventDefault()
         self.toggleVisiblityTagList($(this).data('value'))
         self.addTag($(this).find('a').find('h6').text(), $(this).data('value'))
-      return
+
     populateDropdown: ->
       # This function is called if there is a tag list
-      self = $(this)[0]
+      self = $(this)
       html = ''
       if self.tagListFormat
         idPos = $.inArray 'id', self.tagListFormat
@@ -78,16 +66,15 @@
         .attr('aria-controls', self.tagListContainerId)
         .attr('aria-expanded', 'false')
 
-      return
     removeLabelFromHiddenInput: (value)->
-      self = $(this)[0]
+      self = $(this)
       arr = $("##{self.hiddenInputId}").val().split(",")
       i = arr.indexOf("#{value}")
       arr.splice(i,1)
       $("##{self.hiddenInputId}").val(arr.join())
-      return
+    
     setTagListeners: ->
-      self = $(this)[0]
+      self = $(this)
       # Click on the remove icon
       $(document).on 'click', "[id='tagger-remove-label']", ->
         self.toggleVisiblityTagList($(this).data('value'))
@@ -96,14 +83,17 @@
         # 2 Remove label
         $(this).parent().remove()
 
-      return
     toggleVisiblityTagList: (value)->
-      self = $(this)[0]
+      self = $(this)
       $("##{self.tagListContainerId} > ul > li[data-value=#{value}]").toggle() unless self.allowDuplicates
-      return
-    init: ->
+
+    init: (options)->
+      options = $.extend {}, drilldownJS.default_options, options
+      # Save data to main
+      main.data 'tagger',
+      	options: options,
       # This function checks mandatory flags and calls the necessary functions
-      self = $(this)[0]
+      self = $(this)
       # Check for mandatory IDs
       alert 'Some flags are missing' unless self.hiddenInputId and self.inputId and self.tagContainerId and self.tagListContainerId and self.tagListContainerHeight
       # Check if there is a tag list
@@ -132,4 +122,23 @@
       # Add listeners
       self.setTagListeners();
 
-      return
+    default_options:
+      allowDuplicates: true
+      hiddenInputId: null
+      inputId: null
+      indexableTagList: []
+      labelClass: null
+      onlyTagList: false
+      tagCloseIcon: 'X'
+      tagContainerId: null
+      tagList: null
+      tagListContainerId: null
+      tagListContainerHeight: 300
+      tagListFormat: null
+      tagListStart: null
+
+$.fn.tagger = (args) ->
+  if tagger[args] #Calling a function
+  	tagger[args].apply this, Array::slice.call(arguments, 1)
+  else
+  	tagger.init.apply this, arguments if typeof args is "object" or not args

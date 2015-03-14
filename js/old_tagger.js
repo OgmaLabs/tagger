@@ -109,8 +109,12 @@ tagger = {
       $("#" + self.tagListContainerId + " > ul > li[data-value=" + value + "]").toggle();
     }
   },
-  init: function() {
+  init: function(options) {
     var idPos, namePos, self;
+    options = $.extend({}, drilldownJS.default_options, options);
+    main.data('tagger', {
+      options: options
+    });
     self = $(this)[0];
     if (!(self.hiddenInputId && self.inputId && self.tagContainerId && self.tagListContainerId && self.tagListContainerHeight)) {
       alert('Some flags are missing');
