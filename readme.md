@@ -7,8 +7,9 @@ A js tagging lib using [Foundation](foundation.zurb.com) assets
 
 Flags marked with * are essencial
 - allowDuplicates: true
+- buttonId: null *
+- filterId: null *
 - hiddenInputId: null *
-- inputId: null *
 - indexableTagList: []
 - labelClass: ''
 - tagList: null
@@ -26,17 +27,21 @@ Flags marked with * are essencial
 
 This flag controls the acceptance of duplicates in the form
 
+**buttonId**
+
+The button that will trigger the dropdown and the input for filtering
+
+Example: tagger.buttonId = '_someOtherID_'
+
+**filterId**
+
+The filterId will have two functionalities, first it can filter elements from a given tagList but it will also be able to add non-listed elements using the colon key &#44;
+
 **hiddenInputId**
 
 This hidden input is where your form will get the information from the tags
 
 Example: tagger.hiddenInputId = '_someID_'
-
-**inputId**
-
-Where you will write/select a tag
-
-Example: tagger.InputId = '_someOtherID_'
 
 **indexableTagList**
 

@@ -1,9 +1,23 @@
-var taggerJS;
+var tagger;
 
-taggerJS = {
+tagger = {
+  allowDuplicates: true,
+  buttonId: null,
+  filterId: 'tagger-filter',
+  hiddenInputId: null,
+  indexableTagList: [],
+  labelClass: null,
+  onlyTagList: false,
+  tagCloseIcon: 'X',
+  tagContainerId: null,
+  tagList: null,
+  tagListContainerId: null,
+  tagListContainerHeight: 300,
+  tagListFormat: null,
+  tagListStart: null,
   addTag: function(tag, value) {
     var flag, html, self;
-    self = $(this);
+    self = $(this)[0];
     flag = true;
     html = "<span class='label " + self.labelClass + "'>" + tag + " <a id='tagger-remove-label' data-value=" + (value || tag) + " href='#'>" + self.tagCloseIcon + "</a></span>";
     if (!self.allowDuplicates && !self.onlyTagList) {
@@ -19,19 +33,29 @@ taggerJS = {
       $("#" + self.tagContainerId).append(html);
     }
     if ($("#" + self.hiddenInputId).val()) {
-      return $("#" + self.hiddenInputId).val($("#" + self.hiddenInputId).val() + ("," + value));
+      $("#" + self.hiddenInputId).val($("#" + self.hiddenInputId).val() + ("," + value));
     } else {
-      return $("#" + self.hiddenInputId).val(value || tag);
+      $("#" + self.hiddenInputId).val(value || tag);
     }
+  },
+  filterInput: function(str) {
+    var regexp, self;
+    self = $(this)[0];
+    regexp = new RegExp(str, 'i');
+    $.each($("#" + self.tagListContainerId).find('ul').find('li'), function(i, v) {
+      if (!regexp.test($(this).find('a').find('h6').text())) {
+        $(this).hide();
+      }
+    });
   },
   noDuplicate: function(tag) {
     var self;
-    self = $(this);
+    self = $(this)[0];
     return $.inArray(tag, self.labelToArray($("#" + self.tagContainerId + " > span"))) === -1;
   },
   isInTagList: function(tag, value) {
     var self;
-    self = $(this);
+    self = $(this)[0];
     return $.inArray(tag, self.indexableTagList) >= 0;
   },
   labelToArray: function(selector) {
@@ -42,18 +66,9 @@ taggerJS = {
     });
     return arr;
   },
-  tagListClickEvent: function() {
-    var self;
-    self = $(this);
-    return $("#" + self.tagListContainerId + " > ul > li").click(function(evt) {
-      evt.preventDefault();
-      self.toggleVisiblityTagList($(this).data('value'));
-      return self.addTag($(this).find('a').find('h6').text(), $(this).data('value'));
-    });
-  },
   populateDropdown: function() {
     var html, idPos, namePos, self;
-    self = $(this);
+    self = $(this)[0];
     html = '';
     if (self.tagListFormat) {
       idPos = $.inArray('id', self.tagListFormat);
@@ -68,42 +83,57 @@ taggerJS = {
         self.indexableTagList.push(item);
       });
     }
-    html = "<div id=" + self.tagListContainerId + " class='f-dropdown medium content' data-dropdown-content aria-hidden='true' tabindex='-1'><ul class='inline-list' style='height: " + self.tagListContainerHeight + "px; overflow:auto;'>" + html + "</ul></div>";
+    html = "<div id=" + self.tagListContainerId + " class='f-dropdown medium content' data-dropdown-content aria-autoclose='false' aria-hidden='true' tabindex='-1'><input id=" + self.filterId + " type='text'><ul class='inline-list' style='height: " + self.tagListContainerHeight + "px; overflow:auto;'>" + html + "</ul></div>";
     $("#" + self.hiddenInputId).parent().append(html);
-    return $("#" + self.inputId).attr('data-dropdown', self.tagListContainerId).attr('aria-controls', self.tagListContainerId).attr('aria-expanded', 'false');
+    $("#" + self.buttonId).attr('data-dropdown', self.tagListContainerId).attr('aria-controls', self.tagListContainerId).attr('aria-expanded', 'false');
   },
   removeLabelFromHiddenInput: function(value) {
     var arr, i, self;
-    self = $(this);
+    self = $(this)[0];
     arr = $("#" + self.hiddenInputId).val().split(",");
     i = arr.indexOf("" + value);
     arr.splice(i, 1);
-    return $("#" + self.hiddenInputId).val(arr.join());
+    $("#" + self.hiddenInputId).val(arr.join());
   },
   setTagListeners: function() {
     var self;
-    self = $(this);
-    return $(document).on('click', "[id='tagger-remove-label']", function() {
+    self = $(this)[0];
+    $("#" + self.filterId).keyup(function(evt) {
+      if (evt.keyCode === 188 && !self.onlyTagList) {
+        self.addTag($(this).val().split(",")[0], $(this).val().split(",")[0]);
+        $(this).val('');
+      }
+      self.filterInput($(this).val());
+      if ($(this).val().length === 0) {
+        return $("#" + self.tagListContainerId + " > ul > li").show();
+      }
+    });
+    $(document).on('click', "[id='tagger-remove-label']", function() {
       self.toggleVisiblityTagList($(this).data('value'));
       self.removeLabelFromHiddenInput($(this).data('value'));
       return $(this).parent().remove();
     });
   },
+  tagListClickEvent: function() {
+    var self;
+    self = $(this)[0];
+    $("#" + self.tagListContainerId + " > ul > li").click(function(evt) {
+      evt.preventDefault();
+      self.toggleVisiblityTagList($(this).data('value'));
+      return self.addTag($(this).find('a').find('h6').text(), $(this).data('value'));
+    });
+  },
   toggleVisiblityTagList: function(value) {
     var self;
-    self = $(this);
+    self = $(this)[0];
     if (!self.allowDuplicates) {
-      return $("#" + self.tagListContainerId + " > ul > li[data-value=" + value + "]").toggle();
+      $("#" + self.tagListContainerId + " > ul > li[data-value=" + value + "]").toggle();
     }
   },
-  init: function(options) {
+  init: function() {
     var idPos, namePos, self;
-    self = $(this);
-    options = $.extend({}, taggerJS.default_options, options);
-    self.data('tagger', {
-      options: options
-    });
-    if (!(self.hiddenInputId && self.inputId && self.tagContainerId && self.tagListContainerId && self.tagListContainerHeight)) {
+    self = $(this)[0];
+    if (!(self.hiddenInputId && self.buttonId && self.tagContainerId && self.tagListContainerId && self.tagListContainerHeight)) {
       alert('Some flags are missing');
     }
     if (self.tagList) {
@@ -126,31 +156,6 @@ taggerJS = {
         });
       }
     }
-    return self.setTagListeners();
-  },
-  default_options: {
-    allowDuplicates: true,
-    hiddenInputId: null,
-    inputId: null,
-    indexableTagList: [],
-    labelClass: null,
-    onlyTagList: false,
-    tagCloseIcon: 'X',
-    tagContainerId: null,
-    tagList: null,
-    tagListContainerId: null,
-    tagListContainerHeight: 300,
-    tagListFormat: null,
-    tagListStart: null
-  }
-};
-
-$.fn.tagger = function(args) {
-  if (taggerJS[args]) {
-    return taggerJS[args].apply(this, Array.prototype.slice.call(arguments, 1));
-  } else {
-    if (typeof args === "object" || !args) {
-      return taggerJS.init.apply(this, arguments);
-    }
+    self.setTagListeners();
   }
 };
