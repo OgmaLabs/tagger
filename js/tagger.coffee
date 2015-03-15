@@ -1,4 +1,4 @@
-  taggerJS =
+  taggerJS ={
     addTag: (tag, value) ->
       self = $(this)
       flag = true
@@ -16,7 +16,7 @@
         $("##{self.hiddenInputId}").val($("##{self.hiddenInputId}").val()+",#{value}")
       else
         $("##{self.hiddenInputId}").val(value || tag)
-      
+
     noDuplicate: (tag) ->
       self = $(this)
       $.inArray(tag, self.labelToArray($("##{self.tagContainerId} > span"))) == -1
@@ -72,7 +72,7 @@
       i = arr.indexOf("#{value}")
       arr.splice(i,1)
       $("##{self.hiddenInputId}").val(arr.join())
-    
+
     setTagListeners: ->
       self = $(this)
       # Click on the remove icon
@@ -88,12 +88,12 @@
       $("##{self.tagListContainerId} > ul > li[data-value=#{value}]").toggle() unless self.allowDuplicates
 
     init: (options)->
-      options = $.extend {}, drilldownJS.default_options, options
-      # Save data to main
-      main.data 'tagger',
-      	options: options,
       # This function checks mandatory flags and calls the necessary functions
       self = $(this)
+      options = $.extend {}, taggerJS.default_options, options
+      # Save data to main
+      self.data 'tagger',
+      	options: options,
       # Check for mandatory IDs
       alert 'Some flags are missing' unless self.hiddenInputId and self.inputId and self.tagContainerId and self.tagListContainerId and self.tagListContainerHeight
       # Check if there is a tag list
@@ -136,9 +136,10 @@
       tagListContainerHeight: 300
       tagListFormat: null
       tagListStart: null
+  }
 
-$.fn.tagger = (args) ->
-  if tagger[args] #Calling a function
-  	tagger[args].apply this, Array::slice.call(arguments, 1)
-  else
-  	tagger.init.apply this, arguments if typeof args is "object" or not args
+  $.fn.tagger = (args) ->
+    if taggerJS[args] #Calling a function
+    	taggerJS[args].apply this, Array::slice.call(arguments, 1)
+    else
+    	taggerJS.init.apply this, arguments if typeof args is "object" or not args
