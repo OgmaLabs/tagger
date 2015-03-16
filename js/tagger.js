@@ -1,161 +1,187 @@
-var tagger;
+var taggerJS;
 
-tagger = {
-  allowDuplicates: true,
-  buttonId: null,
-  filterId: 'tagger-filter',
-  hiddenInputId: null,
-  indexableTagList: [],
-  labelClass: null,
-  onlyTagList: false,
-  tagCloseIcon: 'X',
-  tagContainerId: null,
-  tagList: null,
-  tagListContainerId: null,
-  tagListContainerHeight: 300,
-  tagListFormat: null,
-  tagListStart: null,
-  addTag: function(tag, value) {
-    var flag, html, self;
-    self = $(this)[0];
+taggerJS = {
+  init: function(options) {
+    var data, idPos, main, namePos, tag, _i, _j, _len, _len1, _ref, _ref1;
+    options = $.extend({}, taggerJS.default_options, options);
+    main = $(this);
+    main.data('tagger', {
+      options: options
+    });
+    data = main.data('tagger').options;
+    if (!(data.hiddenInputId && data.buttonId && data.tagContainerId && data.tagListContainerId && data.tagListContainerHeight)) {
+      alert('Some flags are missing');
+    }
+    if (data.tagList) {
+      taggerJS.populateDropdown.apply(main);
+      $(document).foundation('dropdown', 'reflow');
+      taggerJS.tagListClickEvent.apply(main);
+    }
+    if (data.tagListStart) {
+      if (data.tagListFormat) {
+        idPos = $.inArray('id', data.tagListFormat);
+        namePos = $.inArray('name', data.tagListFormat);
+        _ref = data.tagListStart;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          tag = _ref[_i];
+          taggerJS.addTag.apply(main, tag);
+          data.indexableTagList.push(tag[namePos]);
+        }
+      } else {
+        _ref1 = data.tagListStart;
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          tag = _ref1[_j];
+          taggerJS.addTag.apply(main, tag);
+          data.indexableTagList.push(tag);
+        }
+      }
+    }
+    return taggerJS.setTagListeners.apply(main);
+  },
+  addTag: function(item, value) {
+    var data, flag, html, main;
+    main = $(this);
+    data = main.data('tagger').options;
     flag = true;
-    html = "<span class='label " + self.labelClass + "'>" + tag + " <a id='tagger-remove-label' data-value=" + (value || tag) + " href='#'>" + self.tagCloseIcon + "</a></span>";
-    if (!self.allowDuplicates && !self.onlyTagList) {
-      flag = self.noDuplicate(tag);
+    html = "<span class='label " + data.labelClass + "'>" + value + " <a id='tagger-remove-label' data-value=" + (item || value) + " href='#'>" + data.tagCloseIcon + "</a></span>";
+    if (!data.allowDuplicates && !data.onlyTagList) {
+      flag = taggerJS.noDuplicate.apply(main, [value]);
     }
-    if (!self.allowDuplicates && self.onlyTagList) {
-      flag = self.noDuplicate(tag) && self.isInTagList(tag, value);
+    if (!data.allowDuplicates && data.onlyTagList) {
+      flag = taggerJS.noDuplicate.apply(main, [value]) && taggerJS.isInTagList.apply(main, [value]);
     }
-    if (self.allowDuplicates && self.onlyTagList) {
-      flag = self.isInTagList(tag, value);
+    if (data.allowDuplicates && taggerJS.onlyTagList) {
+      flag = taggerJS.isInTagList.apply(main, [value]);
     }
     if (flag) {
-      $("#" + self.tagContainerId).append(html);
+      $("#" + data.tagContainerId).append(html);
     }
-    if ($("#" + self.hiddenInputId).val()) {
-      $("#" + self.hiddenInputId).val($("#" + self.hiddenInputId).val() + ("," + value));
+    if ($("#" + data.hiddenInputId).val()) {
+      return $("#" + data.hiddenInputId).val($("#" + data.hiddenInputId).val() + ("," + (item || value)));
     } else {
-      $("#" + self.hiddenInputId).val(value || tag);
+      return $("#" + data.hiddenInputId).val(item || value);
     }
   },
   filterInput: function(str) {
-    var regexp, self;
-    self = $(this)[0];
+    var data, main, regexp;
+    main = $(this);
+    data = main.data('tagger').options;
     regexp = new RegExp(str, 'i');
-    $.each($("#" + self.tagListContainerId).find('ul').find('li'), function(i, v) {
+    return $.each($("#" + data.tagListContainerId).find('ul').find('li'), function(i, v) {
       if (!regexp.test($(this).find('a').find('h6').text())) {
         $(this).hide();
       }
     });
   },
-  noDuplicate: function(tag) {
-    var self;
-    self = $(this)[0];
-    return $.inArray(tag, self.labelToArray($("#" + self.tagContainerId + " > span"))) === -1;
+  isInTagList: function(value) {
+    var data, main;
+    main = $(this);
+    data = main.data('tagger').options;
+    return $.inArray(value, data.indexableTagList) >= 0;
   },
-  isInTagList: function(tag, value) {
-    var self;
-    self = $(this)[0];
-    return $.inArray(tag, self.indexableTagList) >= 0;
-  },
-  labelToArray: function(selector) {
-    var arr;
+  noDuplicate: function(value) {
+    var arr, data, main;
+    main = $(this);
+    data = main.data('tagger').options;
     arr = [];
-    $.each(selector, function(i, val) {
+    $.each($("#" + data.tagContainerId + " > span"), function(i, val) {
       arr.push($(this).text().slice(0, -2));
     });
-    return arr;
+    return $.inArray(value, arr) === -1;
   },
   populateDropdown: function() {
-    var html, idPos, namePos, self;
-    self = $(this)[0];
+    var data, html, idPos, main, namePos;
+    main = $(this);
+    data = main.data('tagger').options;
     html = '';
-    if (self.tagListFormat) {
-      idPos = $.inArray('id', self.tagListFormat);
-      namePos = $.inArray('name', self.tagListFormat);
-      $.each(self.tagList, function(index, item) {
+    if (data.tagListFormat) {
+      idPos = $.inArray('id', data.tagListFormat);
+      namePos = $.inArray('name', data.tagListFormat);
+      $.each(data.tagList, function(index, item) {
         html += "<li data-value=" + item[idPos] + "><a href='javascript:void(0)'><h6>" + item[namePos] + "</h6></a></li>";
-        self.indexableTagList.push(item[namePos]);
+        data.indexableTagList.push(item[namePos]);
       });
     } else {
-      $.each(self.tagList, function(index, item) {
+      $.each(data.tagList, function(index, item) {
         html += "<li data-value=" + item + "><a href='javascript:void(0)'><h6>" + item + "</h6></a></li>";
-        self.indexableTagList.push(item);
+        data.indexableTagList.push(item);
       });
     }
-    html = "<div id=" + self.tagListContainerId + " class='f-dropdown medium content' data-dropdown-content aria-autoclose='false' aria-hidden='true' tabindex='-1'><input id=" + self.filterId + " type='text'><ul class='inline-list' style='height: " + self.tagListContainerHeight + "px; overflow:auto;'>" + html + "</ul></div>";
-    $("#" + self.hiddenInputId).parent().append(html);
-    $("#" + self.buttonId).attr('data-dropdown', self.tagListContainerId).attr('aria-controls', self.tagListContainerId).attr('aria-expanded', 'false');
+    html = "<div id=" + data.tagListContainerId + " class='f-dropdown medium content' data-dropdown-content aria-autoclose='false' aria-hidden='true' tabindex='-1'><input id=" + data.filterId + " type='text'><ul class='inline-list' style='height: " + data.tagListContainerHeight + "px; overflow:auto;'>" + html + "</ul></div>";
+    $("#" + data.hiddenInputId).parent().append(html);
+    return $("#" + data.buttonId).attr('data-dropdown', data.tagListContainerId).attr('aria-controls', data.tagListContainerId).attr('aria-expanded', 'false');
   },
   removeLabelFromHiddenInput: function(value) {
-    var arr, i, self;
-    self = $(this)[0];
-    arr = $("#" + self.hiddenInputId).val().split(",");
+    var arr, data, i, main;
+    main = $(this);
+    data = main.data('tagger').options;
+    arr = $("#" + data.hiddenInputId).val().split(",");
     i = arr.indexOf("" + value);
     arr.splice(i, 1);
-    $("#" + self.hiddenInputId).val(arr.join());
+    return $("#" + data.hiddenInputId).val(arr.join());
   },
-  setTagListeners: function() {
-    var self;
-    self = $(this)[0];
-    $("#" + self.filterId).keyup(function(evt) {
-      if (evt.keyCode === 188 && !self.onlyTagList) {
-        self.addTag($(this).val().split(",")[0], $(this).val().split(",")[0]);
+  setTagListeners: function(self) {
+    var data, main;
+    main = $(this);
+    data = main.data('tagger').options;
+    $("#" + data.filterId).keyup(function(evt) {
+      if (evt.keyCode === 188 && !data.onlyTagList) {
+        taggerJS.addTag.apply(main, [$(this).val().split(",")[0], $(this).val().split(",")[0]]);
         $(this).val('');
       }
-      self.filterInput($(this).val());
+      taggerJS.filterInput.apply(main, [$(this).val()]);
       if ($(this).val().length === 0) {
-        return $("#" + self.tagListContainerId + " > ul > li").show();
+        return $("#" + data.tagListContainerId + " > ul > li").show();
       }
     });
-    $(document).on('click', "[id='tagger-remove-label']", function() {
-      self.toggleVisiblityTagList($(this).data('value'));
-      self.removeLabelFromHiddenInput($(this).data('value'));
+    return $(document).on('click', "[id='tagger-remove-label']", function() {
+      taggerJS.toggleVisiblityTagList.apply(main, [$(this).data('value')]);
+      taggerJS.removeLabelFromHiddenInput.apply(main, [$(this).data('value')]);
       return $(this).parent().remove();
     });
   },
   tagListClickEvent: function() {
-    var self;
-    self = $(this)[0];
-    $("#" + self.tagListContainerId + " > ul > li").click(function(evt) {
+    var data, main;
+    main = $(this);
+    data = main.data('tagger').options;
+    return $("#" + data.tagListContainerId + " > ul > li").click(function(evt) {
       evt.preventDefault();
-      self.toggleVisiblityTagList($(this).data('value'));
-      return self.addTag($(this).find('a').find('h6').text(), $(this).data('value'));
+      taggerJS.toggleVisiblityTagList.apply(main, [$(this).data('value')]);
+      return taggerJS.addTag.apply(main, [$(this).data('value'), $(this).find('a').find('h6').text()]);
     });
   },
   toggleVisiblityTagList: function(value) {
-    var self;
-    self = $(this)[0];
-    if (!self.allowDuplicates) {
-      $("#" + self.tagListContainerId + " > ul > li[data-value=" + value + "]").toggle();
+    var data, main;
+    main = $(this);
+    data = main.data('tagger').options;
+    if (!data.allowDuplicates) {
+      return $("#" + data.tagListContainerId + " > ul > li[data-value=" + value + "]").toggle();
     }
   },
-  init: function() {
-    var idPos, namePos, self;
-    self = $(this)[0];
-    if (!(self.hiddenInputId && self.buttonId && self.tagContainerId && self.tagListContainerId && self.tagListContainerHeight)) {
-      alert('Some flags are missing');
+  default_options: {
+    allowDuplicates: true,
+    buttonId: null,
+    filterId: 'tagger-filter',
+    hiddenInputId: null,
+    indexableTagList: [],
+    labelClass: '',
+    onlyTagList: false,
+    tagCloseIcon: 'X',
+    tagContainerId: null,
+    tagList: null,
+    tagListContainerId: null,
+    tagListContainerHeight: 300,
+    tagListFormat: null,
+    tagListStart: null
+  }
+};
+
+$.fn.tagger = function(args) {
+  if (taggerJS[args]) {
+    return taggerJS[args].apply(this, Array.prototype.slice.call(arguments, 1));
+  } else {
+    if (typeof args === "object" || !args) {
+      return taggerJS.init.apply(this, arguments);
     }
-    if (self.tagList) {
-      self.populateDropdown();
-      $(document).foundation('reflow');
-      self.tagListClickEvent();
-    }
-    if (self.tagListStart) {
-      if (self.tagListFormat) {
-        idPos = $.inArray('id', self.tagListFormat);
-        namePos = $.inArray('name', self.tagListFormat);
-        $.each(self.tagListStart, function(index, item) {
-          self.addTag(item[namePos], item[idPos]);
-          self.indexableTagList.push(item[namePos]);
-        });
-      } else {
-        $.each(self.tagListStart, function(index, item) {
-          self.addTag(item);
-          self.indexableTagList.push(item);
-        });
-      }
-    }
-    self.setTagListeners();
   }
 };

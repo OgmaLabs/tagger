@@ -1,151 +1,156 @@
-tagger =
-  allowDuplicates: true
-  buttonId: null
-  filterId: 'tagger-filter'
-  hiddenInputId: null
-  indexableTagList: []
-  labelClass: null
-  onlyTagList: false
-  tagCloseIcon: 'X'
-  tagContainerId: null
-  tagList: null
-  tagListContainerId: null
-  tagListContainerHeight: 300
-  tagListFormat: null
-  tagListStart: null
-  addTag: (tag, value) ->
-    self = $(this)[0]
+taggerJS =
+  init: (options) ->
+    options = $.extend {}, taggerJS.default_options, options
+    main = $(this)
+
+    main.data 'tagger',
+      options: options
+    # TO DO: Check flags
+    data = main.data('tagger').options
+    alert 'Some flags are missing' unless data.hiddenInputId and data.buttonId and data.tagContainerId and data.tagListContainerId and data.tagListContainerHeight
+    if data.tagList
+      taggerJS.populateDropdown.apply main
+      $(document).foundation('dropdown', 'reflow');
+      taggerJS.tagListClickEvent.apply main
+
+    if data.tagListStart
+      if data.tagListFormat
+        idPos = $.inArray 'id', data.tagListFormat
+        namePos = $.inArray 'name', data.tagListFormat
+        for tag in data.tagListStart
+          taggerJS.addTag.apply main, tag
+          data.indexableTagList.push tag[namePos]
+      else
+        for tag in data.tagListStart
+          taggerJS.addTag.apply main, tag
+          data.indexableTagList.push tag
+
+    taggerJS.setTagListeners.apply main
+  addTag: (item, value)->
+    main = $(this)
+    data = main.data('tagger').options
     flag = true
-    html = "<span class='label #{self.labelClass}'>#{tag} <a id='tagger-remove-label' data-value=#{value || tag} href='#'>#{self.tagCloseIcon}</a></span>"
+    html = "<span class='label #{data.labelClass}'>#{value} <a id='tagger-remove-label' data-value=#{item || value} href='#'>#{data.tagCloseIcon}</a></span>"
 
-    if !self.allowDuplicates and !self.onlyTagList
-      flag = self.noDuplicate(tag)
-    if !self.allowDuplicates and self.onlyTagList
-      flag = self.noDuplicate(tag) and self.isInTagList(tag, value)
-    if self.allowDuplicates and self.onlyTagList
-      flag = self.isInTagList(tag, value)
+    if !data.allowDuplicates and !data.onlyTagList
+      flag = taggerJS.noDuplicate.apply main, [value]
+    if !data.allowDuplicates and data.onlyTagList
+      flag = taggerJS.noDuplicate.apply(main, [value]) and taggerJS.isInTagList.apply(main, [value])
+    if data.allowDuplicates and taggerJS.onlyTagList
+      flag = taggerJS.isInTagList.apply main, [value]
 
-    $("##{self.tagContainerId}").append(html) if flag
-    if  $("##{self.hiddenInputId}").val()
-      $("##{self.hiddenInputId}").val($("##{self.hiddenInputId}").val()+",#{value}")
+    $("##{data.tagContainerId}").append(html) if flag
+    if  $("##{data.hiddenInputId}").val()
+      $("##{data.hiddenInputId}").val($("##{data.hiddenInputId}").val()+",#{item || value}")
     else
-      $("##{self.hiddenInputId}").val(value || tag)
-    return
-  filterInput: (str)->
-    self = $(this)[0]
+      $("##{data.hiddenInputId}").val(item || value)
+
+  filterInput: (str) ->
+    main = $(this)
+    data = main.data('tagger').options
     regexp = new RegExp(str, 'i')
-    $.each $("##{self.tagListContainerId}").find('ul').find('li'), (i, v) ->
+    $.each $("##{data.tagListContainerId}").find('ul').find('li'), (i, v) ->
       ($(this).hide() unless regexp.test($(this).find('a').find('h6').text()))
       return
-    return
-  noDuplicate: (tag) ->
-    self = $(this)[0]
-    return $.inArray(tag, self.labelToArray($("##{self.tagContainerId} > span"))) == -1
-  isInTagList: (tag, value) ->
-    self = $(this)[0]
-    return $.inArray(tag, self.indexableTagList) >= 0
-  labelToArray: (selector) ->
+
+  isInTagList: (value) ->
+    main = $(this)
+    data = main.data('tagger').options
+    $.inArray(value, data.indexableTagList) >= 0
+
+  noDuplicate: (value)->
+    main = $(this)
+    data = main.data('tagger').options
     arr = []
-    $.each selector, (i, val) ->
-      arr.push $(this).text().slice(0,-2)
+    $.each $("##{data.tagContainerId} > span"), (i, val) ->
+      arr.push($(this).text().slice(0,-2))
       return
-    return arr
+    $.inArray(value, arr) == -1
+
   populateDropdown: ->
-    # This function is called if there is a tag list
-    self = $(this)[0]
+    main = $(this)
+    data = main.data('tagger').options
     html = ''
-    if self.tagListFormat
-      idPos = $.inArray 'id', self.tagListFormat
-      namePos = $.inArray 'name', self.tagListFormat
-      $.each self.tagList, (index, item) ->
+    if data.tagListFormat
+      idPos = $.inArray 'id', data.tagListFormat
+      namePos = $.inArray 'name', data.tagListFormat
+      $.each data.tagList, (index, item) ->
         html += "<li data-value=#{item[idPos]}><a href='javascript:void(0)'><h6>#{item[namePos]}</h6></a></li>"
-        self.indexableTagList.push(item[namePos])
+        data.indexableTagList.push(item[namePos])
         return
     else
-      $.each self.tagList, (index, item) ->
+      $.each data.tagList, (index, item) ->
         html += "<li data-value=#{item}><a href='javascript:void(0)'><h6>#{item}</h6></a></li>"
-        self.indexableTagList.push(item)
+        data.indexableTagList.push(item)
         return
 
-    html = "<div id=#{self.tagListContainerId} class='f-dropdown medium content' data-dropdown-content aria-autoclose='false' aria-hidden='true' tabindex='-1'><input id=#{self.filterId} type='text'><ul class='inline-list' style='height: #{self.tagListContainerHeight}px; overflow:auto;'>#{html}</ul></div>"
+    html = "<div id=#{data.tagListContainerId} class='f-dropdown medium content' data-dropdown-content aria-autoclose='false' aria-hidden='true' tabindex='-1'><input id=#{data.filterId} type='text'><ul class='inline-list' style='height: #{data.tagListContainerHeight}px; overflow:auto;'>#{html}</ul></div>"
 
-    # Adding HTML to page
-    $("##{self.hiddenInputId}").parent().append(html)
-    # Linking input to dropdown
-    $("##{self.buttonId}").attr('data-dropdown', self.tagListContainerId)
-      .attr('aria-controls', self.tagListContainerId)
+    # Adding HTML to page and linking dropdown to button
+    $("##{data.hiddenInputId}").parent().append(html)
+    $("##{data.buttonId}").attr('data-dropdown', data.tagListContainerId)
+      .attr('aria-controls', data.tagListContainerId)
       .attr('aria-expanded', 'false')
 
-    return
   removeLabelFromHiddenInput: (value)->
-    self = $(this)[0]
-    arr = $("##{self.hiddenInputId}").val().split(",")
+    main = $(this)
+    data = main.data('tagger').options
+    arr = $("##{data.hiddenInputId}").val().split(",")
     i = arr.indexOf("#{value}")
     arr.splice(i,1)
-    $("##{self.hiddenInputId}").val(arr.join())
-    return
-  setTagListeners: ->
-    self = $(this)[0]
+    $("##{data.hiddenInputId}").val(arr.join())
+
+  setTagListeners: (self)->
+    main = $(this)
+    data = main.data('tagger').options
     #Listener for the input filter, and creator of tags
-    $("##{self.filterId}").keyup (evt) ->
-      # Adding new tags
-      if evt.keyCode == 188 and !self.onlyTagList
-        self.addTag($(this).val().split(",")[0], $(this).val().split(",")[0])
+    $("##{data.filterId}").keyup (evt) ->
+      if evt.keyCode == 188 and !data.onlyTagList
+        taggerJS.addTag.apply main, [$(this).val().split(",")[0], $(this).val().split(",")[0]]
         $(this).val('')
-      self.filterInput($(this).val())
+      taggerJS.filterInput.apply main, [$(this).val()]
       if $(this).val().length == 0
-        $("##{self.tagListContainerId} > ul > li").show()
+        $("##{data.tagListContainerId} > ul > li").show()
     # Click on the remove icon
     $(document).on 'click', "[id='tagger-remove-label']", ->
-      self.toggleVisiblityTagList($(this).data('value'))
+      taggerJS.toggleVisiblityTagList.apply main, [$(this).data('value')]
       # 1 Remove from hidden input
-      self.removeLabelFromHiddenInput($(this).data('value'))
+      taggerJS.removeLabelFromHiddenInput.apply main, [$(this).data('value')]
       # 2 Remove label
       $(this).parent().remove()
 
-    return
   tagListClickEvent: ->
     # This function is called if there is a tag list
-    self = $(this)[0]
-
-    $("##{self.tagListContainerId} > ul > li").click (evt) ->
+    main = $(this)
+    data = main.data('tagger').options
+    $("##{data.tagListContainerId} > ul > li").click (evt) ->
       evt.preventDefault()
-      self.toggleVisiblityTagList($(this).data('value'))
-      self.addTag($(this).find('a').find('h6').text(), $(this).data('value'))
-    return
+      taggerJS.toggleVisiblityTagList.apply main, [$(this).data('value')]
+      taggerJS.addTag.apply main, [$(this).data('value'), $(this).find('a').find('h6').text()]
+
   toggleVisiblityTagList: (value)->
-    self = $(this)[0]
-    $("##{self.tagListContainerId} > ul > li[data-value=#{value}]").toggle() unless self.allowDuplicates
-    return
-  init: ->
-    # This function checks mandatory flags and calls the necessary functions
-    self = $(this)[0]
-    # Check for mandatory IDs
-    alert 'Some flags are missing' unless self.hiddenInputId and self.buttonId and self.tagContainerId and self.tagListContainerId and self.tagListContainerHeight
-    # Check if there is a tag list
-    if self.tagList
-      self.populateDropdown()
-      # Foundation reflow here
-      $(document).foundation('reflow');
-      self.tagListClickEvent()
+    main = $(this)
+    data = main.data('tagger').options
+    $("##{data.tagListContainerId} > ul > li[data-value=#{value}]").toggle() unless data.allowDuplicates
 
-    # Check if there is some tags already selected
-    if self.tagListStart
-      # If you have a more complex tag it must pass here
-      if self.tagListFormat
-        idPos = $.inArray 'id', self.tagListFormat
-        namePos = $.inArray 'name', self.tagListFormat
-        $.each self.tagListStart, (index, item) ->
-          self.addTag(item[namePos], item[idPos])
-          self.indexableTagList.push(item[namePos])
-          return
-      else
-        $.each self.tagListStart, (index, item) ->
-          self.addTag(item)
-          self.indexableTagList.push(item)
-          return
+  default_options:
+    allowDuplicates: true
+    buttonId: null
+    filterId: 'tagger-filter'
+    hiddenInputId: null
+    indexableTagList: []
+    labelClass: ''
+    onlyTagList: false
+    tagCloseIcon: 'X'
+    tagContainerId: null
+    tagList: null
+    tagListContainerId: null
+    tagListContainerHeight: 300
+    tagListFormat: null
+    tagListStart: null
 
-    # Add listeners
-    self.setTagListeners();
-
-    return
+$.fn.tagger = (args) ->
+  if taggerJS[args] #Calling a function
+    taggerJS[args].apply this, Array::slice.call(arguments, 1)
+  else
+    taggerJS.init.apply this, arguments if typeof args is "object" or not args
