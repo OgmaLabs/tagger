@@ -8,7 +8,7 @@ A js tagging lib using [Foundation](foundation.zurb.com) assets
 Flags marked with * are essencial
 - allowDuplicates: true
 - buttonId: null *
-- filterId: null *
+- filterId: 'tagger-filter' *
 - hiddenInputId: null *
 - indexableTagList: []
 - labelClass: ''
@@ -31,7 +31,12 @@ This flag controls the acceptance of duplicates in the form
 
 The button that will trigger the dropdown and the input for filtering
 
-Example: tagger.buttonId = '_someOtherID_'
+Example:
+```
+$(selector).tagger({
+  buttonId: '_someOtherID_'
+})
+```
 
 **filterId**
 
@@ -41,7 +46,12 @@ The filterId will have two functionalities, first it can filter elements from a 
 
 This hidden input is where your form will get the information from the tags
 
-Example: tagger.hiddenInputId = '_someID_'
+Example:
+```
+$(selector).tagger({
+  hiddenInputId: '_someID_'
+})
+```
 
 **indexableTagList**
 
@@ -51,7 +61,12 @@ If a tag has more information than just it's name, then this flags helps to assu
 
 Some extra CSS class you might want to add to your label
 
-Example: tagger.labelClass = '_someFancyClass_'
+Example:
+```
+$(selector).tagger({
+  labelClass: '_someFancyClass_'
+})
+```
 
 **onlyTagList**
 
@@ -83,14 +98,21 @@ This determines the format of the array you will receive on _tagList_ there are 
 
 1. A simple array, then this flag should remain null
 Example:
-  tagger.tagList = ['Apples', 'Oranges'];
-  tagger.tagListFormat = null;
+```
+$(selector).tagger({
+    tagList: ['Apples', 'Oranges'],
+    tagListFormat: null
+})
+```
 
 2. An array of arrays, this usually means you don't want to save the tag name but the tag id
 Example:
-  tagger.tagList = [[1,'Apples'],[2, 'Oranges']];
-  tagger.tagListFormat = ['id', 'name'];
-
+```
+$(selector).tagger({
+    tagList: [[1,'Apples'],[2, 'Oranges']],
+    tagListFormat: ['id', 'name']
+})
+```
 By using the keywords 'id' and 'name', tagger knows it should display the 'name' to the lib user and the id in the hidden input to be stored somewhere
 
 **tagListStart**
@@ -99,8 +121,12 @@ If you want to edit a tag cloud, then it should be able to remember which tags w
 
 
 ### Using tagger
-
-1. Set necessary flags
-2. Customize other flags to your liking
-3. tagger.init();
-4. Enjoy!
+1. Minimum configuration :
+```
+$(selector).tagger({
+    buttonId: "_some_button_id_",
+    hiddenInputId: "_some_hidden_input_id_",
+    tagContainerId: "_some_container_id_",
+    tagListContainerId: "_some_container_id_",
+})
+```
