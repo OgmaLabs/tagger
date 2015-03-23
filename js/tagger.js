@@ -63,15 +63,21 @@ taggerJS = {
     }
   },
   filterInput: function(str) {
-    var data, main, regexp;
+    var data, elem, main, regexp, _i, _len, _ref, _results;
     main = $(this);
     data = main.data('tagger').options;
     regexp = new RegExp(str, 'i');
-    return $.each($("#" + data.tagListContainerId).find('ul').find('li'), function(i, v) {
-      if (!regexp.test($(this).find('a').find('h6').text())) {
-        $(this).hide();
+    _ref = $("#" + data.tagListContainerId).find('ul').find('li');
+    _results = [];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      elem = _ref[_i];
+      if (!regexp.test($(elem).find('a').find('h6').text())) {
+        _results.push($(elem).hide());
+      } else {
+        _results.push(void 0);
       }
-    });
+    }
+    return _results;
   },
   isInTagList: function(value) {
     var data, main;
@@ -80,32 +86,38 @@ taggerJS = {
     return $.inArray(value, data.indexableTagList) >= 0;
   },
   noDuplicate: function(value) {
-    var arr, data, main;
+    var arr, data, elem, main, _i, _len, _ref;
     main = $(this);
     data = main.data('tagger').options;
     arr = [];
-    $.each($("#" + data.tagContainerId + " > span"), function(i, val) {
-      arr.push($(this).text().slice(0, -2));
-    });
+    _ref = $("#" + data.tagContainerId + " > span");
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      elem = _ref[_i];
+      arr.push($(elem).text().slice(0, -2));
+    }
     return $.inArray(value, arr) === -1;
   },
   populateDropdown: function() {
-    var data, html, idPos, main, namePos;
+    var data, html, idPos, item, main, namePos, _i, _j, _len, _len1, _ref, _ref1;
     main = $(this);
     data = main.data('tagger').options;
     html = '';
     if (data.tagListFormat) {
       idPos = $.inArray('id', data.tagListFormat);
       namePos = $.inArray('name', data.tagListFormat);
-      $.each(data.tagList, function(index, item) {
+      _ref = data.tagList;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        item = _ref[_i];
         html += "<li data-value=" + item[idPos] + "><a href='javascript:void(0)'><h6>" + item[namePos] + "</h6></a></li>";
         data.indexableTagList.push(item[namePos]);
-      });
+      }
     } else {
-      $.each(data.tagList, function(index, item) {
+      _ref1 = data.tagList;
+      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+        item = _ref1[_j];
         html += "<li data-value=" + item + "><a href='javascript:void(0)'><h6>" + item + "</h6></a></li>";
         data.indexableTagList.push(item);
-      });
+      }
     }
     html = "<div id=" + data.tagListContainerId + " class='f-dropdown medium content' data-dropdown-content aria-autoclose='false' aria-hidden='true' tabindex='-1'><input id=" + data.filterId + " type='text'><ul class='inline-list' style='height: " + data.tagListContainerHeight + "px; overflow:auto;'>" + html + "</ul></div>";
     $("#" + data.hiddenInputId).parent().append(html);

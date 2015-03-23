@@ -49,9 +49,8 @@ taggerJS =
     main = $(this)
     data = main.data('tagger').options
     regexp = new RegExp(str, 'i')
-    $.each $("##{data.tagListContainerId}").find('ul').find('li'), (i, v) ->
-      ($(this).hide() unless regexp.test($(this).find('a').find('h6').text()))
-      return
+    for elem in $("##{data.tagListContainerId}").find('ul').find('li')
+      $(elem).hide() unless regexp.test($(elem).find('a').find('h6').text())
 
   isInTagList: (value) ->
     main = $(this)
@@ -62,9 +61,8 @@ taggerJS =
     main = $(this)
     data = main.data('tagger').options
     arr = []
-    $.each $("##{data.tagContainerId} > span"), (i, val) ->
-      arr.push($(this).text().slice(0,-2))
-      return
+    for elem in $("##{data.tagContainerId} > span")
+      arr.push($(elem).text().slice(0,-2))
     $.inArray(value, arr) == -1
 
   populateDropdown: ->
@@ -74,15 +72,13 @@ taggerJS =
     if data.tagListFormat
       idPos = $.inArray 'id', data.tagListFormat
       namePos = $.inArray 'name', data.tagListFormat
-      $.each data.tagList, (index, item) ->
+      for item in data.tagList
         html += "<li data-value=#{item[idPos]}><a href='javascript:void(0)'><h6>#{item[namePos]}</h6></a></li>"
         data.indexableTagList.push(item[namePos])
-        return
     else
-      $.each data.tagList, (index, item) ->
+      for item in data.tagList
         html += "<li data-value=#{item}><a href='javascript:void(0)'><h6>#{item}</h6></a></li>"
         data.indexableTagList.push(item)
-        return
 
     html = "<div id=#{data.tagListContainerId} class='f-dropdown medium content' data-dropdown-content aria-autoclose='false' aria-hidden='true' tabindex='-1'><input id=#{data.filterId} type='text'><ul class='inline-list' style='height: #{data.tagListContainerHeight}px; overflow:auto;'>#{html}</ul></div>"
 
