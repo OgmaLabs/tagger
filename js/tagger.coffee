@@ -30,7 +30,8 @@ taggerJS =
     main = $(this)
     data = main.data('tagger').options
     flag = true
-    html = "<span class='label #{data.labelClass}'>#{value} <a id='tagger-remove-label' data-value=#{item || value} href='#'>#{data.tagCloseIcon}</a></span>"
+    html = "<span class='label #{data.labelClass}'>#{value} <a id='tagger-remove-label' data-value=#{item || value} href='#'>"
+    html +="#{data.tagCloseIcon}</a></span>"
 
     if !data.allowDuplicates and !data.onlyTagList
       flag = taggerJS.noDuplicate.apply main, [value]
@@ -80,7 +81,9 @@ taggerJS =
         html += "<li data-value=#{item}><a href='javascript:void(0)'><h6>#{item}</h6></a></li>"
         data.indexableTagList.push(item)
 
-    html = "<div id=#{data.tagListContainerId} class='f-dropdown medium content' data-dropdown-content aria-autoclose='false' aria-hidden='true' tabindex='-1'><input id=#{data.filterId} type='text'><ul class='inline-list' style='height: #{data.tagListContainerHeight}px; overflow:auto;'>#{html}</ul></div>"
+    html =  "<div id=#{data.tagListContainerId} class='f-dropdown medium content' data-dropdown-content aria-autoclose='false' "
+    html += "aria-hidden='true' tabindex='-1'><input id=#{data.filterId} type='text'><ul class='inline-list' "
+    html += "style='height: #{data.tagListContainerHeight}px; overflow:auto;'>#{html}</ul></div>"
 
     # Adding HTML to page and linking dropdown to button
     $("##{data.hiddenInputId}").parent().append(html)

@@ -43,7 +43,8 @@ taggerJS = {
     main = $(this);
     data = main.data('tagger').options;
     flag = true;
-    html = "<span class='label " + data.labelClass + "'>" + value + " <a id='tagger-remove-label' data-value=" + (item || value) + " href='#'>" + data.tagCloseIcon + "</a></span>";
+    html = "<span class='label " + data.labelClass + "'>" + value + " <a id='tagger-remove-label' data-value=" + (item || value) + " href='#'>";
+    html += "" + data.tagCloseIcon + "</a></span>";
     if (!data.allowDuplicates && !data.onlyTagList) {
       flag = taggerJS.noDuplicate.apply(main, [value]);
     }
@@ -119,7 +120,9 @@ taggerJS = {
         data.indexableTagList.push(item);
       }
     }
-    html = "<div id=" + data.tagListContainerId + " class='f-dropdown medium content' data-dropdown-content aria-autoclose='false' aria-hidden='true' tabindex='-1'><input id=" + data.filterId + " type='text'><ul class='inline-list' style='height: " + data.tagListContainerHeight + "px; overflow:auto;'>" + html + "</ul></div>";
+    html = "<div id=" + data.tagListContainerId + " class='f-dropdown medium content' data-dropdown-content aria-autoclose='false' ";
+    html += "aria-hidden='true' tabindex='-1'><input id=" + data.filterId + " type='text'><ul class='inline-list' ";
+    html += "style='height: " + data.tagListContainerHeight + "px; overflow:auto;'>" + html + "</ul></div>";
     $("#" + data.hiddenInputId).parent().append(html);
     return $("#" + data.buttonId).attr('data-dropdown', data.tagListContainerId).attr('aria-controls', data.tagListContainerId).attr('aria-expanded', 'false');
   },
