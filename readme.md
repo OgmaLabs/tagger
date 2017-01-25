@@ -1,3 +1,4 @@
+[![Code Climate](https://codeclimate.com/github/ramongr/tagger.png)](https://codeclimate.com/github/ramongr/tagger)
 # Tagger
 A js tagging lib using [Foundation](foundation.zurb.com) assets
 
