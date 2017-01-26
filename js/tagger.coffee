@@ -7,10 +7,11 @@ taggerJS =
       options: options
     # TO DO: Check flags
     data = main.data('tagger').options
-    alert 'Some flags are missing' unless data.hiddenInputId and data.buttonId and data.tagContainerId and data.tagListContainerId and data.tagListContainerHeight
+    unless data.hiddenInputId and data.buttonId and data.tagContainerId and data.tagListContainerId and data.tagListContainerHeight
+      alert 'Some flags are missing'
     if data.tagList
       taggerJS.populateDropdown.apply main
-      $(document).foundation('dropdown', 'reflow');
+      $(document).foundation('dropdown', 'reflow')
       taggerJS.tagListClickEvent.apply main
 
     if data.tagListStart
@@ -30,8 +31,9 @@ taggerJS =
     main = $(this)
     data = main.data('tagger').options
     flag = true
-    html = "<span class='label #{data.labelClass}'>#{value} <a id='tagger-remove-label' data-value=#{item || value} href='#'>"
-    html +="#{data.tagCloseIcon}</a></span>"
+    html  = "<span class='label #{data.labelClass}'>#{value}"
+    html += " <a id='tagger-remove-label' data-value=#{item || value} href='#'>"
+    html += "#{data.tagCloseIcon}</a></span>"
 
     if !data.allowDuplicates and !data.onlyTagList
       flag = taggerJS.noDuplicate.apply main, [value]
@@ -74,11 +76,15 @@ taggerJS =
       idPos = $.inArray 'id', data.tagListFormat
       namePos = $.inArray 'name', data.tagListFormat
       for item in data.tagList
-        html += "<li data-value=#{item[idPos]}><a href='javascript:void(0)'><h6>#{item[namePos]}</h6></a></li>"
+        html += "<li data-value=#{item[idPos]}>"
+        html += "<a href='javascript:void(0)'><h6>#{item[namePos]}</h6></a>"
+        html += '</li>'
         data.indexableTagList.push(item[namePos])
     else
       for item in data.tagList
-        html += "<li data-value=#{item}><a href='javascript:void(0)'><h6>#{item}</h6></a></li>"
+        html += "<li data-value=#{item}>"
+        html +=   "<a href='javascript:void(0)'><h6>#{item}</h6></a>"
+        html += "</li>"
         data.indexableTagList.push(item)
 
     html =  "<div id=#{data.tagListContainerId} class='f-dropdown medium content' data-dropdown-content aria-autoclose='false' "
